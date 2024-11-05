@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Kategori - Blog Sederhana</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<?php include 'navbar.php'; ?>
+<?php include 'koneksi.php'; ?>
+
+<div class="container mt-5">
+    <?php
+        // Mendapatkan ID kategori dari URL
+        $kategori_id = isset($_GET['id']) ? $_GET['id'] : 0;
+
+        // Query untuk mendapatkan nama kategori berdasarkan ID
+        $kategori_query = "SELECT nama_kategori FROM kategori WHERE id = '$kategori_id'";
+        $kategori_result = mysqli_query($koneksi, $kategori_query);
+        
+        // Cek apakah kategori ditemukan
+        if (mysqli_num_rows($kategori_result) > 0) {
+            $kategori_data = mysqli_fetch_assoc($kategori_result);
+            $nama_kategori = $kategori_data['nama_kategori'];
+            echo "<h2 class='mb-4'>Kategori: $nama_kategori</h2>";
+
+            // Query SQL untuk mengambil artikel berdasarkan kategori
+            $artikel_query = "SELECT * FROM artikel WHERE kategori_id = '$kategori_id'";
+            $artikel_result = mysqli_query($koneksi, $artikel_query);
+
+            if (mysqli_num_rows($artikel_result) > 0) {
+                echo "<div class='row'>";
+                while ($row = mysqli_fetch_array($artikel_result)) {
+    ?>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <img src="cover/<?php echo $row['cover']; ?>" class="card-img-top" alt="Cover Artikel" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title"><?php echo $row['judul']; ?></h5>
+                                <p class="card-text"><small class="text-muted">Tanggal Publish: <?php echo $row['tanggal_publish']; ?></small></p>
+                                <p class="card-text"><?php echo substr($row['isi_artikel'], 0, 120); ?>...</p>
+                                <a href="artikel_detail.php?id=<?php echo $row['id']; ?>" class="btn btn-primary mt-2">Baca Selengkapnya</a>
+                            </div>
+                        </div>
+                    </div>
+    <?php
+                }
+                echo "</div>";
+            } else {
+                echo "<p class='text-center'>Tidak ada artikel untuk kategori ini.</p>";
+            }
+        } else {
+            echo "<h2 class='text-center'>Kategori tidak ditemukan.</h2>";
+        }
+    ?>
+</div>
+
+<p class="text-center">&copy; 2024 Blog Sederhana. Semua hak dilindungi.</p>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
